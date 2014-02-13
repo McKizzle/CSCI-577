@@ -2,6 +2,7 @@
 import numpy as np
 import pylab as py
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D as ax3d
 import ode as ode
 import finite_diff as fd
 
@@ -21,19 +22,27 @@ def main():
     data = get_data()
 
     data_veloc = np.array([
-            [fd.velocity(index, data) for index in range(1, data.shape[1] - 1)],
-            [data[0, index] for index in range(1, data.shape[1] - 1)] 
+            [data[0, index] for index in range(1, data.shape[1] - 1)],
+            [fd.velocity(index, data) for index in range(1, data.shape[1] - 1)]
         ])
     data_accel = np.array([ 
-            [fd.acceleration(index, data) for index in range(1, data.shape[1] - 1)],
-            [data[0, index] for index in range(1, data.shape[1] - 1)] 
+            [data[0, index] for index in range(1, data.shape[1] - 1)],
+            [fd.acceleration(index, data) for index in range(1, data.shape[1] - 1)]
         ])
 
-    print data_veloc
-    print data_accel
+    plt.subplot(221)
+    plt.plot(data[0,:], data[1,:], "b")
+    plt.subplot(222)
+    plt.plot(data_veloc[0,:], data_veloc[1,:], "g")
+    plt.subplot(223)
+    plt.plot(data_accel[0,:], data_accel[1,:], "g")
+    plt.show()
 
+    ax = ax3d(plt.gcf())
+    ax.plot(data_veloc[0,:], data_accel[1,:], data_veloc[1,:])
+    plt.show()
 
-
+    
 
 
 if __name__ == "__main__":
