@@ -77,8 +77,7 @@ def main():
             tv_time = data_agss[0,i]
             break
 
-    print zerodex
-    
+    print tv_time
     #plt.subplot(221) 
     #plt.plot(data_veloc[0,:], data_veloc[1,:], "go-")
     #plt.plot(data_vgss[0,:], data_vgss[1,:], "ro-")
