@@ -8,8 +8,8 @@ import finite_diff as fd
 import utils as ut
 
 v_t = 0.0
-VEL = 0
-POS = 1
+VEL = 1
+POS = 0
 
 def main():
     data = get_data()
@@ -33,18 +33,25 @@ def main():
     term_acc = [first_x_intercept(data_agss), 0]
     term_vel = [term_acc[0], y_for_x(data_vgss, term_acc[0])]
 
+    # Render a plot that compares the velocity to the acceleration.
+    plt.plot(data_veloc[1, :], data_accel[1, :], "sb-") 
+    plt.xlabel("Velocity (m/s)")
+    plt.ylabel("Acceleration (m/s^2)")
+    plt.title("Acceleration as a Function of Velocity")
+    plt.show()
+
     global v_t
     v_t = term_vel[1]
     print "Estimated terminal velocity is %0.2f m/s" % v_t
 
     # Simulate the falling object. 
-    sim_lin = [np.array([data[0, 0], 0.0, data[1, 0]])] # linear drag forces simulation
-    sim_qua = [np.array([data[0, 0], 0.0, data[1, 0]])] # quadratic drag forces simulation
+    sim_lin = [np.array([data[0, 0], data[1, 0], 0.0])] # linear drag forces simulation
+    sim_qua = [np.array([data[0, 0], data[1, 0], 0.0])] # quadratic drag forces simulation
 
-    print sim_lin
-    print data
+    #print sim_lin
+    #print data
     
-    dt = 0.05
+    dt = 0.001
     t_0 = data[0, 0]
     t_max = np.max(data[0,:]) # max seconds
     dt_steps = int(((t_max - t_0) + dt) / dt)
@@ -52,22 +59,39 @@ def main():
         t = step * dt + t_0
         tp1 = [t]
         sim_lin.append(np.append(tp1, ode.runge_kutta(df_linear, sim_lin[step - 1][1:3], dt, t)))
-        #sim_qua.append(np.append(tp1, ode.runge_kutta(df_quadratic, sim_qua[step - 1][1:3], dt, t)))
+        sim_qua.append(np.append(tp1, ode.runge_kutta(df_quadratic, sim_qua[step - 1][1:3], dt, t)))
 
     sim_lin = np.array(sim_lin)
     sim_qua = np.array(sim_qua)
 
     # Compare real pos vs sim pos
     plt.subplot(211)
-    ut.plt2dcmpr(sim_lin[:,0], sim_lin[:, 2], data[0, :], data[1, :], 
+    ut.plt2dcmpr(sim_lin[:,0], sim_lin[:, 1], data[0, :], data[1, :], 
+            ["r", "sb"],
             ["Simulated Position", "Real Position"], "Time (s)", 
-            "Position (m)", "Simulated vs Real Position of Coffee Filter"
+            "Position (m)", "Simulated vs Real Position of Coffee Filter Using the Linear Drag Model"
             )
     plt.subplot(212)
-    #ut.plt2dcmpr(sim_qua[:,0], sim_qua[:, 2], data[0, :], data[1, :], 
-    #        ["Simulated Position", "Real Position"], "Time (s)", 
-    #        "Position (m)", "Simulated vs Real Position of Coffee Filter"
-    #        )
+    ut.plt2dcmpr(sim_qua[:,0], sim_qua[:, 1], data[0, :], data[1, :], 
+            ["r", "sb"],
+            ["Simulated Position", "Real Position"], "Time (s)", 
+            "Position (m)", "Simulated vs Real Position of Coffee Filter Using the Quadratic Drag Model"
+            )
+    plt.show()
+
+    # Compare real vel vs sim vel
+    plt.subplot(211)
+    ut.plt2dcmpr(sim_lin[:,0], sim_lin[:, 2], data_veloc[0, :], data_veloc[1, :], 
+            ["r", "sb"],
+            ["Simulated Velocity", "Real Velocity"], "Time (s)", 
+            "Velocity (m/s)", "Simulated vs Real Velocity of Coffee Filter Using the Linear Drag Model"
+            )
+    plt.subplot(212)
+    ut.plt2dcmpr(sim_qua[:,0], sim_qua[:, 2], data_veloc[0, :], data_veloc[1, :], 
+            ["r", "sb"],
+            ["Simulated Velocity", "Real Velocity"], "Time (s)", 
+            "Velocity (m/s)", "Simulated vs Real Velocity of Coffee Filter Using the Quadratic Drag Model"
+            )
     plt.show()
 
 
@@ -91,13 +115,12 @@ def main():
     #plt.show()
 
 # Drag forces linear ODE.
-def df_linear(x, t, g=-9.8):
-    #print x
-    return np.array([-g * (1 - x[VEL] / v_t), x[POS]])
+def df_linear(x, t, g=9.8):
+    return np.array([x[VEL], -g * (1 - x[VEL] / v_t)])
 
 # Drag forces quadratic ODE
-def df_quadratic(x, t, g=-9.8):
-    return np.array([-g * (1 - (x[VEL] / v_t)**2), x[POS]])
+def df_quadratic(x, t, g=9.8):
+    return np.array([x[VEL], -g * (1 - (x[VEL] / v_t)**2)])
 
 # Finds the first x intercept.
 # Takes in a 2d numpy array assumes that the first row 
@@ -138,7 +161,6 @@ def y_for_x(data, x):
         if xp <= x and xc > x: 
             m = (yc - yp) / (xc - xp) 
             b = yc - m * xc
-            print m, b
             return m * x + b
 
     return None
