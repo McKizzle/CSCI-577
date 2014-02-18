@@ -15,6 +15,12 @@ def runge_kutta(f, x, dt, t):
 
     return x + (1.0/6.0) * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
 
+def analytical(f, x, dt, t):
+    """ Use if calculating an analytical value
+    :param f: must return an np array.
+    """
+    return f(x, dt, t)
+
 def predictor_corrector(f, x, dt, t, bootstrap_func, x_nm1):
     """ Predictor Corrector method. 
         
