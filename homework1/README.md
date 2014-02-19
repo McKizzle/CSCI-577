@@ -13,7 +13,7 @@ Refer to [Homework 1](http://wiki.cs.umt.edu/classes/cs477/index.php/Homework_1 
 ## Problem 1
 Find the value of the error function using euler, euler-richardson, and rk4. Using the generated ODE error function. Simulate it and then compare it to the python built in error function. Use the sum square error to compare the functions using the different solvers. 
 
-    \textrm{erf}(x)=\frac{2}{\sqrt \pi} \int_0^{x} e^{-x'^2} dx',
+    \textrm{erf}(x)=\frac{2}{\sqrt \pi} \int_0^{x} e^{-x'^2} dx'
 
 ### Euler to Simulate the Error Function. 
 dt was set to 0.1 sec for this simulation.
@@ -39,10 +39,10 @@ Simulate early Early Modern Man and Neanderthal populations given limited resour
 
 ### Parameter Description.
 
-__A__ is the birth rate of both species. __B__ is the death rate of the Neanderthals whereas __s * B__ is the death rate of Early Modern Man. __s__ itself serves as a percentage multiplier for the death rate of early modern man. That's why its bounds are ``0 < s <= 1``. __D__ was is simply the year multiplier. It increases the simulation time scale by 1000. 
+``A`` is the birth rate of both species. ``B`` is the death rate of the Neanderthals whereas ``s * B`` is the death rate of Early Modern Man. ``s`` itself serves as a percentage multiplier for the death rate of early modern man. That's why its bounds are ``0 < s <= 1``. ``D`` was is simply the year multiplier. It increases the simulation time scale by 1000. 
 
 ### Resulting Graph
-In order to acheive Neanderthal extinction between 5,000 and 1,000 years _s_ needs to be about 0.96.
+In order to acheive Neanderthal extinction between 5,000 and 1,000 years ``s`` needs to be about 0.96.
 
 ![Extinction is eacheived within 5,000 to 10,000 years when _s_ is about 0.96](./nea-emm-competition.png)
 
