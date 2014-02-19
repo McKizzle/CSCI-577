@@ -24,7 +24,7 @@ def run():
             "Early Modern Human vs Neanderthal Populations"
             )
     plt.text(5000, 30, "s = %0.3f" % s)
-    plt.savefig("clinton_nea-emm-competition.png", bbox_inches="tight")
+    plt.savefig("nea-emm-competition.png", bbox_inches="tight")
     plt.close()
 
 def pop(x, t):
