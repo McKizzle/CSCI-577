@@ -16,8 +16,19 @@ Find the value of the error function using euler, euler-richardson, and rk4. Usi
     \textrm{erf}(x)=\frac{2}{\sqrt \pi} \int_0^{x} e^{-x'^2} dx',
 
 ### Euler to Simulate the Error Function. 
+dt was set to 0.1 sec for this simulation.
 
 ![Solved using the Euler integrator.](./erf_euler.png)
+
+### Euler Richard to Simulate the Error Function
+dt was set to 0.1 sec for this simulation.
+
+![Solved using the Euler-Richardson integrator.](./euler_richardson.png)
+
+### Runge Kutta to Simulate the Error Function
+dt was set to 0.1 sec for this simulation.
+
+![Solved using the Runge Kutta integrator.](./erf_rk4.png)
 
 ## Problem 2
 Simulate early Early Modern Man and Neanderthal populations given limited resources. Construct an ODE and solve ti to determine the best parameters that results in a 10,000 year extinction period for the Neanderthals.
@@ -26,9 +37,10 @@ Simulate early Early Modern Man and Neanderthal populations given limited resour
 
     \frac{dE}{dt} = E[A-D(N+E)-sB]
 
-## Problem 3 Extra Credit
-Alter the formulas such that they make the assumption that the Neanderthals were being eaten by the humans.
+### Resulting Graph
+In order to acheive Neanderthal extinction between 5,000 and 1,000 years _s_ needs to be about 0.96.
 
-Assume that interaction is weak (1 x 10^4) and Neanderthal consumption conversion to humans is 10%. 
+![Extinction is eacheived within 5,000 to 10,000 years when _s_ is about 0.96](./nea-emm-competition.png)
+
 
 
