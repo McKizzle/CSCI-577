@@ -37,6 +37,10 @@ Simulate early Early Modern Man and Neanderthal populations given limited resour
 
     \frac{dE}{dt} = E[A-D(N+E)-sB]
 
+### Parameter Description.
+
+__A__ is the birth rate of both species. __B__ is the death rate of the Neanderthals whereas __s * B__ is the death rate of Early Modern Man. __s__ itself serves as a percentage multiplier for the death rate of early modern man. That's why its bounds are ``0 < s <= 1``. __D__ was is simply the year multiplier. It increases the simulation time scale by 1000. 
+
 ### Resulting Graph
 In order to acheive Neanderthal extinction between 5,000 and 1,000 years _s_ needs to be about 0.96.
 
