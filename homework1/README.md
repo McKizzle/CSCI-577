@@ -1,5 +1,5 @@
 # Homework 1
-Refer to [Homework 1](http://wiki.cs.umt.edu/classes/cs477/index.php/Homework_1 "homework 1") 
+Refer to [Homework 1](http://wiki.cs.umt.edu/classes/cs477/index.php/Homework_1 "homework 1") on the Wiki. 
 
 ## Files
   - _problem1.py_ contains all of the code for the first problem.
