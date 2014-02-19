@@ -11,9 +11,6 @@ def main():
     # Run problem two 
     p2.run()
 
-    # EC Run problem three 
-    p3.run()
-
 if __name__ == '__main__':
     main()
 
