@@ -23,7 +23,7 @@ dt was set to 0.1 sec for this simulation.
 ### Euler Richard to Simulate the Error Function
 dt was set to 0.1 sec for this simulation.
 
-![Solved using the Euler-Richardson integrator.](./euler_richardson.png)
+![Solved using the Euler-Richardson integrator.](./erf_euler-richardson.png)
 
 ### Runge Kutta to Simulate the Error Function
 dt was set to 0.1 sec for this simulation.
