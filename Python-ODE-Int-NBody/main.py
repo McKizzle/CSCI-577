@@ -16,8 +16,9 @@ VXJ= 6
 VYJ= 7
 
 # Constants
-G = 6.67384 * 10 ** -11
+G = 6.67384e-11
 GM = 4 * mt.pi ** 2
+#M = 1.989e30
 M_EAR = 0.001
 M_JUP= 0.04
 
@@ -75,18 +76,21 @@ def energy(x, GM=GM, G=G, m_e=M_EAR, m_j=M_JUP):
     r_ej = np.sqrt(np.sum((x[XJ:(YJ + 1)] - x[XE:(YE + 1)])**2))        # r_ej between earth and jupiter.
     r_sj = np.sqrt(np.sum(x[XJ:(YJ + 1)]**2))                           # r_sj between sun and jupiter.
 
-    E_x =  1.0 / 2.0 * m_e * x[VXE] + 1.0/2.0 * m_j * x[VXJ]
+    #E_x =  1.0 / 2.0 * m_e * x[VXE] + 1.0/2.0 * m_j * x[VXJ]
+    #E_x = E_x - GM * m_e / r_se - GM * m_j / r_sj - G * m_j * m_e / r_ej
+    E_x =  1.0 / 2.0 * m_e * x[VXE]**2 + 1.0/2.0 * m_j * x[VXJ]**2
     E_x = E_x - GM * m_e / r_se - GM * m_j / r_sj - G * m_j * m_e / r_ej
 
-    E_y =  1.0 / 2.0 * m_e * x[VYE] + 1.0/2.0 * m_j * x[VYJ]
+    #E_y =  1.0 / 2.0 * m_e * x[VYE] + 1.0/2.0 * m_j * x[VYJ]
+    #E_y = E_y - GM * m_e / r_se - GM * m_j / r_sj - G * m_j * m_e / r_ej
+    E_y =  1.0 / 2.0 * m_e * x[VYE]**2 + 1.0/2.0 * m_j * x[VYJ]**2
     E_y = E_y - GM * m_e / r_se - GM * m_j / r_sj - G * m_j * m_e / r_ej
 
     return np.array([E_x + E_y])
 
 def angular_momentum(x, GM=GM, m_e=M_EAR, m_j=M_JUP):
-    L_e = m_e*(x[XE] * x[VXE] - x[YE] * x[VYE])
-    
-    return np.array([L_e + m_e * (x[XJ] * x[VXJ] - x[YJ] * x[VYJ])])
+    L_e = m_e*(x[XE] * x[VXE] - x[YE] * x[VYE]) 
+    return np.array([L_e + m_j * (x[XJ] * x[VXJ] - x[YJ] * x[VYJ])])
     
 
 
