@@ -7,15 +7,6 @@ import ode as ode
 import utils as ut
 import matplotlib.pyplot as plt
 
-XE = 0
-YE = 1
-VXE= 2
-VYE= 3
-XJ = 4
-YJ = 5
-VXJ= 6
-VYJ= 7
-
 # Constants
 G = 6.67384e-11
 GM = 4 * mt.pi ** 2
@@ -41,8 +32,8 @@ def main():
     sim_d = np.array(sim_d)
     
     # Plot the orbits
-    plt.axis("equal")
     plt.subplot(311)
+    plt.axis("equal")
     ut.plt2dcmpr(sim_d[:, XE], sim_d[:, YE], sim_d[:, XJ], sim_d[:, YJ],
         ["r", "b"], ["Earth", "Jupiter"], "X", "Y", "Jupiter and Earth Orbit Simulation Results")
 
