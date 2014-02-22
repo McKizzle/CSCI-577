@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#import scipy.integrate as spint
+import scipy.integrate as scint
 import numpy as np
 import system as sys
 import math as mt
@@ -35,76 +37,59 @@ def main():
     v_xj = 0.0
     v_yj = mt.sqrt(GM / x_j) 
 
-
     init_cond = np.array([x_e, y_e, v_xe, v_ye, x_j, y_j, v_xj, v_yj]) 
     
     # System Settings
-    dt = 0.01
+    dt = 0.001
     t_0 = 0.0
     t_max = 100
     ode_sys = planets
     integrator = ode.euler_richardson
 
     print "Simulating nbody..."
-    sim_d = sys.simulate([init_cond], dt, t_0, t_max, ode_sys, integrator) # System simulation
+    intgr = scint.ode(planets_scipy)
+    intgr.set_integrator('vode', atol=0.00001, rtol=0.00001)
+    intgr.set_initial_value(init_cond, t_0)
+    times = np.arange(t_0, t_max, dt)
+
+    sim_d = [init_cond]
+    for t in times[1:]:
+        intgr.integrate(intgr.t+dt)
+        sim_d.append(intgr.y)
+    sim_d = np.array(sim_d)
+    #times = np.arange(t_0, t_max, dt)
+    #sim_d = scint.odeint(planets_scipy, init_cond, times)
+    #sim_d = sys.simulate([init_cond], dt, t_0, t_max, ode_sys, integrator) # System simulation
     print "Done"
+
     print "Calculating the angular momentum and the energy..."
-    sim_am = [percent_delta(0, angular_momentum(sim_d[0, 1:sim_d.shape[1]]))]
-    sim_en = [percent_delta(0, energy(sim_d[0, 1:sim_d.shape[1]]))]
-    for i in range(1, sim_d.shape[0]):
-        am_delta = percent_delta(
-                    angular_momentum(sim_d[i - 1, 1:sim_d.shape[1]]),
-                    angular_momentum(sim_d[i, 1:sim_d.shape[1]])
-                )
-        sim_am.append(am_delta)
-        en_delta = percent_delta(
-                    energy(sim_d[i - 1, 1:sim_d.shape[1]]),
-                    energy(sim_d[i, 1:sim_d.shape[1]])
-                )
-        sim_en.append(en_delta)
+    print "TODO"
     print "Done"
  
     # Plot the orbits, angular momentum, and energy.
-    plt.subplot(311)
+    #plt.subplot(311)
     plt.axis('equal')
     ut.plt2dcmpr(sim_d[:, XE + 1], sim_d[:, YE + 1], sim_d[:, XJ + 1], sim_d[:, YJ + 1],
         ["r", "b"], ["Earth", "Jupiter"], "X", "Y", "Jupiter and Earth Orbit Simulation Results")
-    plt.subplot(312)
-    plt.plot(sim_d[:,0], sim_am, "-")
-    plt.xlabel("time (years)")
-    plt.ylabel(r"% $\Delta$ E / M")
-    plt.subplot(313)
-    plt.plot(sim_d[:,0], sim_en, "-")
-    plt.xlabel("time (years)")
-    plt.ylabel(r"% $\Delta$ L / M")
-    plt.show()
+    #plt.subplot(312)
+    #plt.plot(sim_d[:,0], sim_am, "-")
+    #plt.xlabel("time (years)")
+    #plt.ylabel(r"% $\Delta$ E / M")
+    #plt.subplot(313)
+    #plt.plot(sim_d[:,0], sim_en, "-")
+    #plt.xlabel("time (years)")
+    #plt.ylabel(r"% $\Delta$ L / M")
+    plt.show() 
+ 
+def planets_scipy(t, y):
+    return planets(y, t)
 
-def percent_delta(a_1, a_2):
-    if a_1:
-        return np.array((a_2 - a_1) / a_1)
-    else:
-        return np.array(0)
+def planets2(x, t, GM=GM, m_eM=M_EAR, m_jM=M_JUP):
+    dxdt = np.zeros(np.size(x))
 
-def energy(x, GM=GM, G=G, m_e=M_EAR, m_j=M_JUP):
-    r_se = np.sqrt(np.sum(x[XE:(YE + 1)]**2))                           # r_se between sun and earth.
-    r_ej = np.sqrt(np.sum((x[XJ:(YJ + 1)] - x[XE:(YE + 1)])**2))        # r_ej between earth and jupiter.
-    r_sj = np.sqrt(np.sum(x[XJ:(YJ + 1)]**2))                           # r_sj between sun and jupiter.
-
-    v_e = np.sqrt(np.sum(x[VXE:VYE + 1]**2))**2
-    v_j = np.sqrt(np.sum(x[VXJ:VYJ + 1]**2))**2
-    
-    E = 1.0 / 2.0 * m_e * v_e**2
-    E = E + 1.0 / 2.0 * m_j * v_j**2
-    E = E + GM * m_e / r_se + GM * m_j / r_sj + GM * m_j * m_e / r_ej
-    return np.array(E)
-
-
-def angular_momentum(x, GM=GM, m_e=M_EAR, m_j=M_JUP):
-    L_e = m_e*(x[XE] * x[VXE] - x[YE] * x[VYE]) 
-    L_j = m_j * (x[XJ] * x[VXJ] - x[YJ] * x[VYJ])
-    return np.array([L_e + L_j])
-    
-
+    r_1     = mt.sqrt(x[0]**2 + x[1]**2)
+    r_21    = mt.sqrt((x[4] - x[0])**2 + (x[5] - x[1])**2)
+    r_2     = mt.sqrt(x[4]**2 + x[5]**2)
 
 def planets(x, t, GM=GM, m_e=M_EAR, m_j=M_JUP):
     """ Planet ODE system """
@@ -139,3 +124,27 @@ def planets(x, t, GM=GM, m_e=M_EAR, m_j=M_JUP):
 if __name__ == '__main__':
     main()
 
+#def percent_delta(a_0, a_n):
+#    if a_0:
+#        return np.array((a_n - a_0) / a_0) * 100
+#    else:
+#        return 0
+#
+#def energy(x, GM=GM, G=G, m_e=M_EAR, m_j=M_JUP):
+#    r_se = np.sqrt(np.sum(x[XE:(YE + 1)]**2))                           # r_se between sun and earth.
+#    r_ej = np.sqrt(np.sum((x[XJ:(YJ + 1)] - x[XE:(YE + 1)])**2))        # r_ej between earth and jupiter.
+#    r_sj = np.sqrt(np.sum(x[XJ:(YJ + 1)]**2))                           # r_sj between sun and jupiter.
+#
+#    v_e = np.sqrt(np.sum(x[VXE:VYE + 1]**2))**2
+#    v_j = np.sqrt(np.sum(x[VXJ:VYJ + 1]**2))**2
+#    
+#    E = 1.0 / 2.0 * m_e * v_e**2
+#    E = E + 1.0 / 2.0 * m_j * v_j**2
+#    E = E - GM * m_e / r_se - GM * m_j / r_sj - GM * m_j * m_e / r_ej
+#    return np.array(E)
+#
+#
+#def angular_momentum(x, GM=GM, m_e=M_EAR, m_j=M_JUP):
+#    L_e = m_e*(x[XE] * x[VXE] - x[YE] * x[VYE]) 
+#    L_j = m_j * (x[XJ] * x[VXJ] - x[YJ] * x[VYJ])
+#    return np.array([L_e + L_j])
