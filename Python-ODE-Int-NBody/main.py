@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#import scipy.integrate as spint
 import scipy.integrate as scint
 import numpy as np
 import system as sys
@@ -24,127 +23,119 @@ GM = 4 * mt.pi ** 2
 M_EAR = 0.001
 M_JUP= 0.04
 
-def main():
-    # Earth initial Cond
-    x_e = 2.52
-    y_e = 0.0
-    v_xe = 0.0
-    v_ye = mt.sqrt(GM / x_e)
-
-    # Jupiter Initial Conditions
-    x_j = 5.24
-    y_j = 0.0
-    v_xj = 0.0
-    v_yj = mt.sqrt(GM / x_j) 
-
-    init_cond = np.array([x_e, y_e, v_xe, v_ye, x_j, y_j, v_xj, v_yj]) 
-    
-    # System Settings
-    dt = 0.001
+def main(): 
+    dt = 0.01
     t_0 = 0.0
     t_max = 100
-    ode_sys = planets
-    integrator = ode.euler_richardson
 
-    print "Simulating nbody..."
-    intgr = scint.ode(planets_scipy)
+    # Simulate the two planets. 
+    init_cond = two_planets_initial_cond()
+    intgr = scint.ode(two_planets)
     intgr.set_integrator('vode', atol=0.00001, rtol=0.00001)
     intgr.set_initial_value(init_cond, t_0)
     times = np.arange(t_0, t_max, dt)
-
     sim_d = [init_cond]
     for t in times[1:]:
-        intgr.integrate(intgr.t+dt)
+        intgr.integrate(intgr.t + dt)
         sim_d.append(intgr.y)
     sim_d = np.array(sim_d)
-    #times = np.arange(t_0, t_max, dt)
-    #sim_d = scint.odeint(planets_scipy, init_cond, times)
-    #sim_d = sys.simulate([init_cond], dt, t_0, t_max, ode_sys, integrator) # System simulation
-    print "Done"
-
-    print "Calculating the angular momentum and the energy..."
-    print "TODO"
-    print "Done"
- 
-    # Plot the orbits, angular momentum, and energy.
-    #plt.subplot(311)
-    plt.axis('equal')
-    ut.plt2dcmpr(sim_d[:, XE + 1], sim_d[:, YE + 1], sim_d[:, XJ + 1], sim_d[:, YJ + 1],
+    
+    # Plot the orbits
+    plt.axis("equal")
+    plt.subplot(311)
+    ut.plt2dcmpr(sim_d[:, XE], sim_d[:, YE], sim_d[:, XJ], sim_d[:, YJ],
         ["r", "b"], ["Earth", "Jupiter"], "X", "Y", "Jupiter and Earth Orbit Simulation Results")
-    #plt.subplot(312)
-    #plt.plot(sim_d[:,0], sim_am, "-")
-    #plt.xlabel("time (years)")
-    #plt.ylabel(r"% $\Delta$ E / M")
-    #plt.subplot(313)
-    #plt.plot(sim_d[:,0], sim_en, "-")
-    #plt.xlabel("time (years)")
-    #plt.ylabel(r"% $\Delta$ L / M")
-    plt.show() 
+
+    # Calcualte the percent delta change for the energy and angular momentum.
+    sim_perde = []
+    sim_perdam = []
+    for i in range(1, sim_d.shape[0]):
+        sim_perde.append(rel_diff(two_planets_energy(sim_d[i - 1]), two_planets_energy(sim_d[i])))
+        sim_perdam.append(rel_diff(two_planets_angular_momentum(sim_d[i - 1]),
+            two_planets_angular_momentum(sim_d[i])))
+    
+    # Plot 
+    sim_perde = np.array(sim_perde)
+    sim_pardam = np.array(sim_perdam)
+    plt.subplot(312)
+    plt.plot(times[1:times.shape[0]], sim_perde)
+    plt.xlabel("time (years)")
+    plt.ylabel(r"% $\Delta$ E / M")
+    plt.subplot(313)
+    plt.plot(times[1:times.shape[0]], sim_perdam)
+    plt.xlabel("time (years)")
+    plt.ylabel(r"% $\Delta$ L / M")
+    plt.savefig("two_planets.png", bbox_inches="tight")
+    plt.close()
+
+
+def rel_diff(x_1, x_2):
+    return (x_2 - x_1) / x_1
+
+def two_planets_energy(x, GM=GM, m_1overM=M_EAR, m_2overM=M_JUP):
+    # Build the vectors. 
+    vr_1  = np.array([x[0], x[1]])
+    vr_21 = np.array([x[4] - x[0], x[5] - x[1]])
+    vr_2  = np.array([x[4], x[5]])
+    # Magnitudes
+    r_1     = np.linalg.norm(vr_1) 
+    r_21    = np.linalg.norm(vr_21)
+    r_2     = np.linalg.norm(vr_2)
+
+    EoverM = 1.0/2.0*m_1overM*vr_1**2 + 1.0/2.0*m_2overM*vr_2**2 \
+            - GM * m_1overM / r_1 - GM * m_2overM / r_2 \
+            - GM * m_1overM * m_2overM / r_21
+    return np.linalg.norm(EoverM)
+
+def two_planets_angular_momentum(x, GM=GM, m_1overM=M_EAR, m_2overM=M_JUP):
+    # Build the vectors. 
+    L_1overM = m_1overM*(x[0]*x[3] - x[1]*x[2])
+    L_2overM = m_1overM*(x[4]*x[7] - x[5]*x[6])
+    return L_1overM + L_2overM
  
-def planets_scipy(t, y):
-    return planets(y, t)
-
-def planets2(x, t, GM=GM, m_eM=M_EAR, m_jM=M_JUP):
+ 
+def two_planets(t, x, GM=GM, m_1overM=M_EAR, m_2overM=M_JUP):
     dxdt = np.zeros(np.size(x))
 
-    r_1     = mt.sqrt(x[0]**2 + x[1]**2)
-    r_21    = mt.sqrt((x[4] - x[0])**2 + (x[5] - x[1])**2)
-    r_2     = mt.sqrt(x[4]**2 + x[5]**2)
+    # Build the vectors. 
+    vr_1  = np.array([x[0], x[1]])
+    vr_21 = np.array([x[4] - x[0], x[5] - x[1]])
+    vr_2  = np.array([x[4], x[5]])
+    # Magnitudes
+    r_1     = np.linalg.norm(vr_1) 
+    r_21    = np.linalg.norm(vr_21)
+    r_2     = np.linalg.norm(vr_2)
 
-def planets(x, t, GM=GM, m_e=M_EAR, m_j=M_JUP):
-    """ Planet ODE system """
-    dxdt = np.zeros(np.size(x))
-
-    #print "x:\t", x 
-    r_se = np.sqrt(np.sum(x[XE:(YE + 1)]**2))                           # r_se between sun and earth.
-    r_ej = np.sqrt(np.sum((x[XJ:(YJ + 1)] - x[XE:(YE + 1)])**2))        # r_ej between earth and jupiter.
-    r_sj = np.sqrt(np.sum(x[XJ:(YJ + 1)]**2))                           # r_sj between sun and jupiter.
-
-    #print "r_se:\t%0.4f"% r_se
-    #print "r_ej:\t%0.4f"% r_ej
-    #print "r_sj:\t%0.4f"% r_sj
-     
-    # Earth
-    dxdt[XE]    = x[VXE]
-    dxdt[YE]    = x[VYE]
-    dxdt[VXE]   = -GM / r_se**3 * x[XE] + GM * m_j / r_ej**3 * (x[XJ] - x[XE])
-    dxdt[VYE]   = -GM / r_se**3 * x[YE] + GM * m_j / r_ej**3 * (x[YJ] - x[YE]) 
-    # Jupiter
-    dxdt[XJ]    = x[VXJ]
-    dxdt[YJ]    = x[VYJ]
-    dxdt[VXJ]   = -GM / r_sj**3 * x[XJ] - GM * m_e / r_ej**3 * (x[XE] - x[XJ])
-    dxdt[VYJ]   = -GM / r_sj**3 * x[YJ] - GM * m_e / r_ej**3 * (x[YE] - x[YJ])
-
-    #print "DxDt:\t", dxdt
-
-    #exit()
+    dvdt_1 = -GM / r_1**3 * vr_1 + GM * m_2overM / r_21**3 * vr_21
+    dvdt_2 = -GM / r_2**3 * vr_2 - GM * m_1overM / r_21**3 * vr_21
+    
+    dxdt[0] = x[2]
+    dxdt[1] = x[3]
+    dxdt[2] = dvdt_1[0]
+    dxdt[3] = dvdt_1[1]
+    dxdt[4] = x[6]
+    dxdt[5] = x[7]
+    dxdt[6] = dvdt_2[0]
+    dxdt[7] = dvdt_2[1]
 
     return dxdt
+
+def two_planets_initial_cond(GM=GM):
+    # Earth initial Cond
+    x_1 = 2.52
+    y_1 = 0.0
+    v_x1 = 0.0
+    v_y1 = mt.sqrt(GM / x_1)
+
+    # Jupiter Initial Conditions
+    x_2 = 5.24
+    y_2 = 0.0
+    v_x2 = 0.0
+    v_y2 = mt.sqrt(GM / x_2) 
+
+    return np.array([x_1, y_1, v_x1, v_y1, x_2, y_2, v_x2, v_y2]) 
 
 if __name__ == '__main__':
     main()
 
-#def percent_delta(a_0, a_n):
-#    if a_0:
-#        return np.array((a_n - a_0) / a_0) * 100
-#    else:
-#        return 0
-#
-#def energy(x, GM=GM, G=G, m_e=M_EAR, m_j=M_JUP):
-#    r_se = np.sqrt(np.sum(x[XE:(YE + 1)]**2))                           # r_se between sun and earth.
-#    r_ej = np.sqrt(np.sum((x[XJ:(YJ + 1)] - x[XE:(YE + 1)])**2))        # r_ej between earth and jupiter.
-#    r_sj = np.sqrt(np.sum(x[XJ:(YJ + 1)]**2))                           # r_sj between sun and jupiter.
-#
-#    v_e = np.sqrt(np.sum(x[VXE:VYE + 1]**2))**2
-#    v_j = np.sqrt(np.sum(x[VXJ:VYJ + 1]**2))**2
-#    
-#    E = 1.0 / 2.0 * m_e * v_e**2
-#    E = E + 1.0 / 2.0 * m_j * v_j**2
-#    E = E - GM * m_e / r_se - GM * m_j / r_sj - GM * m_j * m_e / r_ej
-#    return np.array(E)
-#
-#
-#def angular_momentum(x, GM=GM, m_e=M_EAR, m_j=M_JUP):
-#    L_e = m_e*(x[XE] * x[VXE] - x[YE] * x[VYE]) 
-#    L_j = m_j * (x[XJ] * x[VXJ] - x[YJ] * x[VYJ])
-#    return np.array([L_e + L_j])
+
