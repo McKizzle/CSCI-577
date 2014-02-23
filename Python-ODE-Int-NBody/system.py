@@ -36,7 +36,7 @@ def simulate(init_cond, dt, t_0, t_max, ode_sys, intgrtr, verbose=False):
             print "\t%0.4f seconds at step %d" % (t, step)
                 
     sim_data = np.array(sim_data)
-    return np.append(time_data, sim_data, 1)
+    return sim_data
 
 def falling(x, t, g = -9.8): 
     """ Falling ode for testing """
