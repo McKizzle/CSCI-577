@@ -24,12 +24,16 @@ def main():
     sim_d = simulate(binary_initial_cond1(), dt, t_0, t_max) 
     plt.subplot(211)
     plt.axis("equal")
+    plt.xlabel("x (AU)")
+    plt.ylabel("y (AU)")
     plt.plot(sim_d[:, 0], sim_d[:, 1])
 
     sim_d = simulate(binary_initial_cond2(), dt, t_0, t_max) 
     plt.subplot(212)
     plt.axis("equal")
     plt.plot(sim_d[:, 0], sim_d[:, 1])
+    plt.xlabel("x (AU)")
+    plt.ylabel("y (AU)")
     plt.savefig("kepler_orbits.png", bbox_inches="tight")
 
 def simulate(init_cond, dt, t_0, t_max):

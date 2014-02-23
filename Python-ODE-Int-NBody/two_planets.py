@@ -34,8 +34,8 @@ def main():
     # Plot the orbits
     plt.subplot(311)
     plt.axis("equal")
-    ut.plt2dcmpr(sim_d[:, XE], sim_d[:, YE], sim_d[:, XJ], sim_d[:, YJ],
-        ["r", "b"], ["Earth", "Jupiter"], "X", "Y", "Jupiter and Earth Orbit Simulation Results")
+    ut.plt2dcmpr(sim_d[:, 0], sim_d[:, 1], sim_d[:, 4], sim_d[:, 5],
+        ["r", "b"], ["Earth", "Jupiter"], "X (AU)", "Y (AU)", "Jupiter and Earth Orbit Simulation Results")
 
     # Calcualte the percent delta change for the energy and angular momentum.
     sim_perde = []
