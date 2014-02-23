@@ -11,9 +11,9 @@ def runge_kutta(f, x, dt, t):
     k_1 = f(x, t) * dt
     k_2 = f(x + k_1 / 2.0, t + dt / 2.0) * dt
     k_3 = f(x + k_2 / 2.0, t + dt / 2.0) * dt
-    k_4 = f(x + k_3, t + dt / 2.0) * dt
+    k_4 = f(x + k_3, t + dt) * dt
 
-    return x + (1.0/6.0) * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
+    return x + (1.0/6.0) * (k_1 + 2.0 * k_2 + 2.0 * k_3 + k_4)
 
 def analytical(f, x, dt, t):
     """ Use if calculating an analytical value
