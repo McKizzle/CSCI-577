@@ -22,8 +22,11 @@ def main():
 
     # Simulate the two planets. 
     sim_d = simulate(binary_initial_cond1(), dt, t_0, t_max) 
+    plt.subplots(nrows=2, ncols=1)
+    plt.tight_layout()
     plt.subplot(211)
     plt.axis("equal")
+    plt.title("Binary Star System with Single Planet (dt = %0.3f)" % dt)
     plt.xlabel("x (AU)")
     plt.ylabel("y (AU)")
     plt.plot(sim_d[:, 0], sim_d[:, 1])
