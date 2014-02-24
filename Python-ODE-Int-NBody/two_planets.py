@@ -21,7 +21,7 @@ def main():
     # Simulate the two planets using the scipy integrator
     init_cond = two_planets_initial_cond()
     intgr = scint.ode(two_planets)
-    intgr.set_integrator('vode', atol=0.00001, rtol=0.00001)
+    intgr.set_integrator('dopri5', method = 'adams', atol=0.000001, rtol=0.000001)
     intgr.set_initial_value(init_cond, t_0)
     times = np.arange(t_0, t_max, dt)
     sim_d = [init_cond]
@@ -47,8 +47,8 @@ def main():
     sim_perde = []
     sim_perdam = []
     for i in range(0, sim_d.shape[0]):
-        sim_perde.append(per_diff(two_planets_energy(sim_d[i]), two_planets_energy(sim_c[i])))
-        sim_perdam.append(per_diff(two_planets_angular_momentum(sim_d[i]), two_planets_angular_momentum(sim_c[i])))
+        sim_perde.append(per_diff(two_planets_energy(sim_d[i]), two_planets_energy(sim_d[0])))
+        sim_perdam.append(per_diff(two_planets_angular_momentum(sim_d[i]), two_planets_angular_momentum(sim_d[0])))
     
     # Plot 
     sim_perde = np.array(sim_perde)
