@@ -1,0 +1,53 @@
+===Statement of the problem===
+Restate the problem. Generally, this can be a simple cut and paste from elsewhere on the wiki. Add any clarifications that you may have received in class.
+
+===Background and Theory===
+
+List relevant topics from lecture notes and class that appear in the solution to the problem. Provide external links to sources that you found helpful in completing the problem. For instance, you could use a list as follows:
+
+* Object Oriented design.
+* Ordinary differential equations (ODEs)
+* Numerical solution of ODEs
+* [[Wikipedia:Kinematics]]
+
+And then provide some elaboration on each point. This begins with a simple cut and paste of course notes, but should provide more elaboration on some of the details. More over, let me know what you are doing, and why you are doing it. In most cases this requires equations, which are written as
+
+<center>
+<math>
+\mathbf{F} = m \mathbf{a} = m \frac{d\mathbf{v}}{dt} = m \frac{d\mathbf{x}^2}{dt^2}
+</math>
+</center>
+
+This markup is probably new to most of you. It is called '''Latex'''. A nice summary of using Latex to write mathematics is [http://en.wikibooks.org/wiki/LaTeX/Mathematics here].
+
+===Discussion of solution strategy===
+Write one of two paragraphs describing how you propose to solve the problem with a Python program. Include diagrams if you think they help. If you'd like to draw a picture, adding images is done as follows:
+
+[[Image:UML.png|thumb|right|260 px| This is the UML diagram for software that we are creating.]]
+
+===Solution===
+
+Put source code onto the wiki in the following way:
+
+<syntaxhighlight lang="python">
+class EulerRichardson(IntegratorBase):
+    runner = True
+
+    def __init__(self,dt=.01):
+        self.dt = dt
+
+    def reset(self,n,has_jac):
+        pass
+
+    def run(self,f,jac,y0,t0,t1,f_params,jac_params):
+
+</syntaxhighlight>
+
+Break code down into relevant components, ie, classes, and provide some cometary between components about how they work in unison.
+
+===Output===
+
+Provide some output demonstrating that your code works correctly. Place emphasis on well prepared visuals.
+
+===Commentary===
+Conclude your homework with a discussion that directly addresses any questions raised in the assignment. Also discuss strength and weaknesses of solution strategy, and general validity of the model. How far can the model you used be extended to handle new problems?
