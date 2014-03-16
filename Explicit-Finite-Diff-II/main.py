@@ -11,23 +11,13 @@ def main():
     N = 20
     a = 0.0
     b = 1.0
-    u = np.zeros(20)
-    u[0] = a
-    u[-1] = b
-    x = np.arange(0.0, float(len(u)), 1.0) / float(len(u) - 1)
-    u = relax1D(u)
-    print u[-1]
-    animate1Dframes(x, u)
+    u_0 = np.zeros(N)
+    u_0[0] = a
+    u_0[-1] = b
+    u = [np.zeros(N), [0]]
 
-    # Now lets relax a 2D array of values. Such that the top and bottom edges are set to zero
-    # and the left and right edges are set to one. 
-    u2D = np.zeros((N, N))
-    u2D[0,:]  = a
-    u2D[-1,:] = a
-    u2D[:,0]  = b
-    u2D[:,-1] = b
-    u2D = relax2D(u2D)
-    animate2Dframes(u2D)
+def time_derivative(x, dt, t):
+    pass
 
 def relax2D(u, a=0.0, b=1.0, 
             num=np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]), 
