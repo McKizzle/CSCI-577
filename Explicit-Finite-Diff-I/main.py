@@ -16,8 +16,10 @@ def main():
     u[-1] = b
     x = np.arange(0.0, float(len(u)), 1.0) / float(len(u) - 1)
     u = relax1D(u)
-    print u[-1]
-    animate1Dframes(x, u)
+    #animate1Dframes(x, u)
+    plt.plot(x, u[-1], "-sk")
+    plt.savefig("Relaxed1D.png")
+    plt.close()
 
     # Now lets relax a 2D array of values. Such that the top and bottom edges are set to zero
     # and the left and right edges are set to one. 
@@ -27,7 +29,10 @@ def main():
     u2D[:,0]  = b
     u2D[:,-1] = b
     u2D = relax2D(u2D)
-    animate2Dframes(u2D)
+    u2D_cf = plt.contour(u2D[-1], levels=np.arange(0, 1, 0.1))
+    plt.clabel(u2D_cf, colors='k')
+    plt.savefig("Relaxed2D.png")
+    plt.close()
 
 def relax2D(u, a=0.0, b=1.0, 
             num=np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]), 
