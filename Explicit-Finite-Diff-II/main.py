@@ -16,10 +16,10 @@ def main():
     u = np.zeros(N)
     u[0] = a
     u[-1] = b
-    #u = relax1Dpartial(u, x, dt=0.0005, tol=1e-4, a=a, b=b)
-    #plt.plot(x, u[-1], "-sk")
-    #plt.savefig("partial1D.png")
-    #plt.close()
+    u = relax1D(u, x, dt=0.0001, tol=1e-4, a=a, b=b)
+    plt.plot(x, u[-1], "-sk")
+    plt.savefig("partial1D.png")
+    plt.close()
     #animate1Dframes(x, u)
 
     u2D = np.zeros((N, N))
@@ -27,61 +27,50 @@ def main():
     u2D[:,0] = b
     u2D[-1,:] = b
     u2D[0,:]  = a
-    u2D = relax2Dpartial(u2D, x, y, dt=0.0001, tol=1e-4, a=a, b=b)
-    #u2D_cf = plt.contour(x, y, u2D[-1], levels=np.arange(0, 1, 0.1))
-    #plt.clabel(u2D_cf, colors='k')
-    #plt.savefig("partial2D.png")
-    #plt.close()
-    animate2Dframes(u2D)
+    u2D = relax2D(u2D, x, y, dt=0.0001, tol=1e-4, a=a, b=b)
+    u2D_cf = plt.contour(x, y, u2D[-1], levels=np.arange(0, 1, 0.1))
+    plt.clabel(u2D_cf, colors='k')
+    plt.savefig("partial2D.png")
+    plt.close()
+    #animate2Dframes(u2D)
 
 
-def d2x(u, dx, t):
+def d2dx2(u, dx, t):
     return sig.convolve(u, [1.0, -2.0, 1.0], 'same') / dx**2.0
 
-def euler_partial(u, x, dt, t):
+def nabla_x(u, x, dt, t):
     dx = x[1] - x[0]
-    return u  + d2x(u, dx, t) * dt
+    return u  + d2dx2(u, dx, t) * dt
 
-def relax1Dpartial(u, x, dt=0.005, tol=1e-4, a=0.0, b=1.0):
+def relax1D(u, x, dt=0.005, tol=1e-4, a=0.0, b=1.0):
     data = []
     d_sol = 1.0
     while(d_sol > tol):
         data.append(u)
-        u_new = euler_partial(u, x, dt, 0.0) 
+        u_new = nabla_x(u, x, dt, 0.0) 
         u_new[0] = a
         u_new[-1] = b
         d_sol = Delta_solution(u, u_new)
         u = u_new
     return data
 
-def d2xv2(u, dx, dy, t):
-    return sig.convolve(u, [[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]], 'same') / (2 * (dy * dx))
+def d2dx2_d2y2(u, dx, dy, t):
+    return sig.convolve(u, [[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]], 'same') / (2.0 * (dy * dx))
 
-def partial(u, dx, t, num=[1.0, -2.0, 1.0]):
-    dudx = []
-
-    for i in range(0, u.shape[0]):
-        dudx.append(sig.convolve(u[i,:], num, 'same') / dx**2.0)
-
-    return np.array(dudx)
-
-def euler_partial_v2(u, x, y, dt, t):
+def nabla_xy(u, x, y, dt, t):
     dx = x[1] - x[0]
     dy = y[1] - y[0]
 
-    #dudx = partial(u, dx, t)
-    #dudy = np.transpose(partial(np.transpose(u), dy, t))
-    #return u + (dudx + dudy) * dt
-    dudx = d2xv2(u, dx, dy, t)
+    dudx = d2dx2_d2y2(u, dx, dy, t)
     return u + dudx * dt
 
-def relax2Dpartial(u, x, y, dt=0.00005, tol=1e-4, a=0.0, b=1.0):
+def relax2D(u, x, y, dt=0.00005, tol=1e-4, a=0.0, b=1.0):
     """ testing the relax2D """ 
     data = []
     d_sol = 1.0
     while(d_sol > tol):
         data.append(u)
-        u_new = euler_partial_v2(u, x, y, dt, 0.0) 
+        u_new = nabla_xy(u, x, y, dt, 0.0) 
         u_new[:,-1]= b
         u_new[:,0] = b
         u_new[-1,:] = b
@@ -99,35 +88,11 @@ def animate2Dframes(data):
     """
     plt.ion()
     img = plt.imshow(data[0])
+    plt.colorbar()
 
     for u in data:
         img.set_data(u)
         plt.draw()
-
-def relax1D(u, a=0.0, b=1.0,
-            num=np.array([1.0, 0.0, 1.0]),
-            den=2.0, tol=1E-4):
-    """ Relaxes a 1D array of data given. 
-        :param u: the initial array of values to relax.  
-        :param a: constant value to set the initial index of u
-        :param b: constant value to set the terminal index of u
-        :param num: the array to pass into the convolver. 
-        :param den: the default value to divide u_new by at each iteration. 
-    """
-    
-    data = []
-
-    d_sol = 1
-    u[0] = a
-    u[-1] = b
-    while(d_sol > tol):
-        data.append(u)
-        u_new = sig.convolve(u, num, 'same') / den
-        u_new[0] = a
-        u_new[-1] = b
-        d_sol = Delta_solution(u, u_new)
-        u = u_new
-    return data
 
 def animate1Dframes(x, data):
     """ Animates a 2D array of data using pyplot. 
