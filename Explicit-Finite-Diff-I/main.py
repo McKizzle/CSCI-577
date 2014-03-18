@@ -16,7 +16,8 @@ def main():
     u[-1] = b
     x = np.arange(0.0, float(len(u)), 1.0) / float(len(u) - 1)
     u = relax1D(u)
-    #animate1Dframes(x, u)
+    print "It took %d iterations to reach the desired tolerance." % (len(u) - 1)
+    animate1Dframes(x, u)
     plt.plot(x, u[-1], "-sk")
     plt.savefig("Relaxed1D.png")
     plt.close()
@@ -29,6 +30,8 @@ def main():
     u2D[:,0]  = b
     u2D[:,-1] = b
     u2D = relax2D(u2D)
+    print "It took %d iterations to reach the desired tolerance." % (len(u2D) - 1)
+    animate2Dframes(u2D)
     u2D_cf = plt.contour(u2D[-1], levels=np.arange(0, 1, 0.1))
     plt.clabel(u2D_cf, colors='k')
     plt.savefig("Relaxed2D.png")
@@ -70,6 +73,7 @@ def animate2Dframes(data):
     """
     plt.ion()
     img = plt.imshow(data[0])
+    plt.colorbar()
 
     for u in data:
         img.set_data(u)
@@ -109,7 +113,7 @@ def animate1Dframes(x, data):
     """
     plt.ion() # Set the plot to animated.    
     ax1 = plt.axes()
-    line, = plt.plot(x, data[0])
+    line, = plt.plot(x, data[0], "-ko")
 
     for u in data:
         line.set_ydata(u)
