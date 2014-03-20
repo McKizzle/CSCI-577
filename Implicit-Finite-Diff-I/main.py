@@ -18,15 +18,45 @@ def main():
     u = np.zeros(N)
     u[int(N/2)] = b 
     alpha = dt / dx**2.0
+    #A = scpy.sparse.lil_matrix((N, N))
+    #A.setdiag(np.ones(N) + 2.0 * alpha)
+    #A.setdiag(np.zeros(N) - alpha, k=1)
+    #A.setdiag(np.zeros(N) - alpha, k=-1)
+    #A = A.tocsr()
+    #U = simulate(u, A, dx, dt=dt)
+    #plt.plot(X, U[-1], '-ok')
+    #plt.show()
+
+    # Crank Nicolson Method. 
+    # Build the identity (I) matrix
+    I = scpy.identity(N)
+    #print type(I)
+    #I.tocsr()
+    #I = I.tocsr()
+    
+    # Build the A matrix
     A = scpy.sparse.lil_matrix((N, N))
-    A.setdiag(np.ones(N) + 2.0 * alpha)
-    A.setdiag(np.zeros(N) - alpha, k=1)
-    A.setdiag(np.zeros(N) - alpha, k=-1)
-    A = A.tocsr()
-    U = simulate(u, A, dx, dt=0.001)
+    #print type(A)
+    A.setdiag(np.zeros(N) - 2.0 * alpha)
+    A.setdiag(np.zeros(N) + alpha, k=1)
+    A.setdiag(np.zeros(N) + alpha, k=-1)
+    A.tocsr()
+
+    Q = (I - A)
+    R = (I + A)
+    
+    S = np.mat(scpy.linalg.inv(Q)) * R
+    S = scpy.sparse.csr_matrix(S)
+    
+    U = simulate(u, S, dx=dx, dt=dt)
     plt.plot(X, U[-1], '-ok')
     plt.show()
+
     return 0
+
+def integral(x, u):
+    """ Calculate areas """
+    pass
 
 def simulate(u_0, A, dx, boundries = 0.0, dt=0.001, n=2000):
     """ Run the simulation for a defined number of steps 
