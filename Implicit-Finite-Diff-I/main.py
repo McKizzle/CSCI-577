@@ -8,6 +8,7 @@ import time as tm
 
 def main():
     N = 51
+    time_steps = 2000
     a = 0
     b = 1
     x_0 = 0.0
@@ -18,45 +19,95 @@ def main():
     u = np.zeros(N)
     u[int(N/2)] = b 
     alpha = dt / dx**2.0
-    #A = scpy.sparse.lil_matrix((N, N))
-    #A.setdiag(np.ones(N) + 2.0 * alpha)
-    #A.setdiag(np.zeros(N) - alpha, k=1)
-    #A.setdiag(np.zeros(N) - alpha, k=-1)
-    #A = A.tocsr()
-    #U = simulate(u, A, dx, dt=dt)
-    #plt.plot(X, U[-1], '-ok')
-    #plt.show()
 
-    # Crank Nicolson Method. 
-    # Build the identity (I) matrix
-    I = scpy.identity(N)
-    #print type(I)
-    #I.tocsr()
-    #I = I.tocsr()
+    I = scpy.identity(N) 
     
     # Build the A matrix
     A = scpy.sparse.lil_matrix((N, N))
-    #print type(A)
     A.setdiag(np.zeros(N) - 2.0 * alpha)
     A.setdiag(np.zeros(N) + alpha, k=1)
     A.setdiag(np.zeros(N) + alpha, k=-1)
-    A.tocsr()
+
+    S = (I - A)
+    S = scpy.sparse.csr_matrix(S)
+    
+    U = simulate(u, S, dx, dt=dt, n=time_steps)
+    
+    #animate1Dframes(X, U)
+    # Plot the final curve
+    plt.plot(X, U[-1], '-ok')
+    plt.title("Implicit Method")
+    plt.ylabel("x")
+    plt.xlabel("u")
+    plt.savefig("implicitDiff.png")
+    plt.close()
+    
+    # Plot the area under the curve at each time step
+    intU = np.array([np.array([i, integral(X, U[i])]) for i in range(0, time_steps)])
+    plt.plot(intU[:,0], intU[:,1])
+    plt.title("Implicit Method Area")
+    plt.ylabel("time")
+    plt.xlabel("area")
+    plt.savefig("implicitDiff_Area.png")
+    plt.close()
+
+    ############### Crank Nicolson Method. ######
+    # Build the identity (I) matrix
+    alpha = dt / (2.0 * dx**2.0)
+    I = scpy.identity(N)
+    
+    # Build the A matrix
+    A = scpy.sparse.lil_matrix((N, N))
+    A.setdiag(np.zeros(N) - 2.0 * alpha)
+    A.setdiag(np.zeros(N) + alpha, k=1)
+    A.setdiag(np.zeros(N) + alpha, k=-1)
 
     Q = (I - A)
     R = (I + A)
     
-    S = np.mat(scpy.linalg.inv(Q)) * R
+    S = np.mat(scpy.linalg.inv(R)) * Q
     S = scpy.sparse.csr_matrix(S)
     
-    U = simulate(u, S, dx=dx, dt=dt)
+    U = simulate(u, S, dx=dx, dt=dt, n=time_steps)
+
+
+    # Plot the final curve
+    #animate1Dframes(X, U)
     plt.plot(X, U[-1], '-ok')
-    plt.show()
+    plt.title("Crank Nicolson Method")
+    plt.ylabel("x")
+    plt.xlabel("u")
+    plt.savefig("CrankNicolsonMethod.png")
+    plt.close()
+    
+    # Plot the area under the curve at each time step
+    intU = np.array([np.array([i, integral(X, U[i])]) for i in range(0, time_steps)])
+    plt.plot(intU[:,0], intU[:,1])
+    plt.title("Implicit Method Area")
+    plt.ylabel("time")
+    plt.xlabel("area")
+    plt.savefig("CrankNicolsonMethod_Area.png")
+    plt.close()
 
     return 0
 
 def integral(x, u):
-    """ Calculate areas """
-    pass
+    """ Calculate the area underneath a curve.
+        :param x: the x values of the curve. 
+        :param u: the y values of the curve.
+    """
+    area = 0
+    h = x[1] - x[0]
+    for i in range(1, len(u)):
+        p0 = np.array([x[i - 1], 0])
+        p1 = np.array([x[i - 1], u[i - 1]])
+        p2 = np.array([x[i], u[i]])
+        p3 = np.array([x[i], 0])
+        a = np.linalg.norm(p0 - p1)
+        b = np.linalg.norm(p2 - p3)
+        area = area + 0.5 * (a + b) * h
+    
+    return area
 
 def simulate(u_0, A, dx, boundries = 0.0, dt=0.001, n=2000):
     """ Run the simulation for a defined number of steps 
