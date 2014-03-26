@@ -7,31 +7,107 @@ import matplotlib.pyplot as plt
 import time as tm
 
 def main():
-    N = 51
-    time_steps = 2000
+    N = 50
+    dt = 0.001
+    t_max = 4.0
+    time_steps = t_max / dt
+    v = 5.0
     a = 0
     b = 1
     x_0 = 0.0
-    x_N = 1e3
+    x_N = 10.0
+    x_stp_size = x_N / N 
     X = np.linspace(x_0, x_N, N)
+    x_sw0 = int(4.5 / x_stp_size) 
+    x_swk = int(5.5 / x_stp_size)
     dx = X[1] - X[0]
-    dt = 1
     u = np.zeros(N)
-    u[int(N/2)] = b 
-    alpha = dt / dx**2.0
+    u[x_sw0:x_swk] = b
+    u[0] = a
+    alpha = dt / dx
+    u[-1] = a
 
-    I = scpy.identity(N) 
-    
-    # Build the A matrix
-    A = scpy.sparse.lil_matrix((N, N))
-    A.setdiag(np.zeros(N) - 2.0 * alpha)
-    A.setdiag(np.zeros(N) + alpha, k=1)
-    A.setdiag(np.zeros(N) + alpha, k=-1)
+    # Construct the Matricies to reflexct the lax formula 
+    J = scpy.sparse.lil_matrix((N, N))
+    J.setdiag(np.zeros(N) - 1, k=-1)
+    J.setdiag(np.zeros(N) + 1, k=1)
+    J[0,:] = np.zeros(N)
+    J[-1,:] = np.zeros(N)
+    J[1, 0] = 0 #np.zeros(N)
+    J[-2,-1] = 0 #np.zeros(N)
+    J[0, 0] = 1
+    J[-1, -1] = 1
+    print J.todense()
+    return 0
 
-    S = (I - A)
-    S = scpy.sparse.csr_matrix(S)
+    K = scpy.sparse.lil_matrix((N, N))
+    K.setdiag(np.zeros(N) + 1, k=-1)
+    K.setdiag(np.zeros(N) + 1, k=1)
+    K[0,:] = np.zeros(N)
+    K[-1, :] = np.zeros(N)
+    K[1, 0] = 0 #np.zeros(N)
+    K[-2,-1] = 0 #np.zeros(N)
+    K[0, 0] = 1
+    K[-1, -1] = 1
     
-    U = simulate(u, S, n=time_steps)
+    # Simulate where CFL is satisfied
+    A = -v * 0.5 * alpha * J + 0.5 * K
+    A[0,:] = np.zeros(N)
+    A[-1, :] = np.zeros(N)
+    A[1, 0] = 0 #np.zeros(N)
+    A[-2,-1] = 0 #np.zeros(N)
+    A[0, 0] = 1
+    A[-1, -1] = 1
+    A = scpy.sparse.csr_matrix(scpy.linalg.inv(A.todense()))
+    U = simulate(u, A, n=time_steps)
+    animate1Dframes(X, U)
+    
+    plt.title("Lax Method: dt = %0.2f, dx = %0.2f, and v = %0.2f" % (dt, dx, v))
+    plt_0,  = plt.plot(X, U[0], "-ks")
+    plt_32, = plt.plot(X, U[int(len(U)/32)], "-bs")
+    plt_16, = plt.plot(X, U[int(len(U)/16)], "-gs")
+    plt_8,  = plt.plot(X, U[int(len(U)/8)], "-rs")
+    plt.legend([plt_0, plt_32, plt_16, plt_8], 
+            [r"t = 0.0", r"t = %0.2f" % (int(len(U)/32) * dt), 
+             r"t = %0.2f" % (int(len(U)/16) * dt),
+             r"t = %0.2f" % (int(len(U)/8) * dt)]
+            )
+
+    plt.savefig("laxMethod_stable.png")
+    plt.close()
+
+    #animate1Dframes(X, U)
+
+    # Simulate without CFL being satisfied. 
+    dt = 0.5
+    time_steps = t_max / dt
+    alpha = dt / dx
+
+    A = -v * 0.5 * alpha * J + 0.5 * K
+    A = scpy.sparse.csr_matrix(scpy.linalg.inv(A.todense()))
+    U = simulate(u, A, n=time_steps)
+    #animate1Dframes(X, U)
+   
+    plt.title("Lax Method: dt = %0.2f, dx = %0.2f, and v = %0.2f" % (dt, dx, v))
+    plt_0,  = plt.plot(X, U[0], "-ks")
+    plt_32, = plt.plot(X, U[1], "-bs")
+    plt_16, = plt.plot(X, U[2], "-gs")
+    plt_8,  = plt.plot(X, U[4], "-rs")
+    plt.legend([plt_0, plt_32, plt_16, plt_8], 
+            [r"t = 0.0", r"t = %0.2f" % (1 * dt), 
+             r"t = %0.2f" % (2 * dt),
+             r"t = %0.2f" % (3 * dt)]
+            )
+    plt.savefig("laxMethod_unstable.png")
+    #plt.show()
+    plt.close()
+
+    # Leapfrog method
+    dt = 0.01
+    time_steps = t_max / dt
+    alpha = dt / dx
+    #A = - 
+
     
     return 0
 
@@ -60,7 +136,7 @@ def simulate(u_0, A, boundries = 0.0, n=2000):
     """
     U = [] 
     u_n = u_0
-    for i in range(0, n):
+    for i in range(0, int(n)):
         U.append(u_n)
         u_np1 = scpy.sparse.linalg.spsolve(A,u_n) 
         u_np1[0] = boundries
@@ -83,6 +159,8 @@ def animate1Dframes(x, data):
     for u in data:
         line.set_ydata(u)
         plt.draw()
+        #tm.sleep(0.25)
+
 
 if __name__ == "__main__":
     main()
