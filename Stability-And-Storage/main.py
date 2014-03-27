@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 import time as tm
 
 def main():
-    N = 50
-    dt = 0.001
-    t_max = 4.0
+    N = 100
+    dt = 0.02
+    t_max = 10.0
     time_steps = t_max / dt
-    v = 5.0
+    v = 1.0
     a = 0
     b = 1
     x_0 = 0.0
@@ -25,6 +25,7 @@ def main():
     u[x_sw0:x_swk] = b
     u[0] = a
     alpha = dt / dx
+    print "|v|dt/dx: ", v * dt / dx
     u[-1] = a
 
     # Construct the Matricies to reflexct the lax formula 
@@ -33,20 +34,14 @@ def main():
     J.setdiag(np.zeros(N) + 1, k=1)
     J[0,:] = np.zeros(N)
     J[-1,:] = np.zeros(N)
-    J[1, 0] = 0 #np.zeros(N)
-    J[-2,-1] = 0 #np.zeros(N)
     J[0, 0] = 1
     J[-1, -1] = 1
-    print J.todense()
-    return 0
 
     K = scpy.sparse.lil_matrix((N, N))
     K.setdiag(np.zeros(N) + 1, k=-1)
     K.setdiag(np.zeros(N) + 1, k=1)
     K[0,:] = np.zeros(N)
     K[-1, :] = np.zeros(N)
-    K[1, 0] = 0 #np.zeros(N)
-    K[-2,-1] = 0 #np.zeros(N)
     K[0, 0] = 1
     K[-1, -1] = 1
     
@@ -54,13 +49,12 @@ def main():
     A = -v * 0.5 * alpha * J + 0.5 * K
     A[0,:] = np.zeros(N)
     A[-1, :] = np.zeros(N)
-    A[1, 0] = 0 #np.zeros(N)
-    A[-2,-1] = 0 #np.zeros(N)
     A[0, 0] = 1
     A[-1, -1] = 1
     A = scpy.sparse.csr_matrix(scpy.linalg.inv(A.todense()))
     U = simulate(u, A, n=time_steps)
-    animate1Dframes(X, U)
+    #animate1Dframes(X, U)
+
     
     plt.title("Lax Method: dt = %0.2f, dx = %0.2f, and v = %0.2f" % (dt, dx, v))
     plt_0,  = plt.plot(X, U[0], "-ks")
@@ -74,14 +68,15 @@ def main():
             )
 
     plt.savefig("laxMethod_stable.png")
+    plt.show()
     plt.close()
-
     #animate1Dframes(X, U)
 
     # Simulate without CFL being satisfied. 
     dt = 0.5
     time_steps = t_max / dt
     alpha = dt / dx
+    print "|v|dt/dx: ", v * dt / dx
 
     A = -v * 0.5 * alpha * J + 0.5 * K
     A = scpy.sparse.csr_matrix(scpy.linalg.inv(A.todense()))
@@ -99,15 +94,13 @@ def main():
              r"t = %0.2f" % (3 * dt)]
             )
     plt.savefig("laxMethod_unstable.png")
-    #plt.show()
+    plt.show() 
     plt.close()
 
     # Leapfrog method
     dt = 0.01
     time_steps = t_max / dt
     alpha = dt / dx
-    #A = - 
-
     
     return 0
 
@@ -128,6 +121,23 @@ def integral(x, u):
         area = area + 0.5 * (a + b) * h
     
     return area
+
+def leap_frog(u_n, u_nm1=None, A=None):
+    """ Leap frog method. Takes in u^n and u^n-1 and returns u^{n + 1}
+
+        :param u_n: The current state of the system. 
+        :param u_nm1: The next state of the system. If left as None
+            then uses the lax method to calculate the next state. 
+        :param A: Defaults to the identity matrix.
+
+        :return: n^{n + 1} the next state of the system.
+    """
+    if not A:
+        A=scpy.identity(len(u_n));
+    
+
+
+    return 0
 
 def simulate(u_0, A, boundries = 0.0, n=2000):
     """ Run the simulation for a defined number of steps 
