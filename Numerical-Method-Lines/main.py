@@ -5,6 +5,7 @@ import numpy as np
 import math as mt
 import matplotlib.pyplot as plt
 import time as tm
+import scipy.integrate as scint
 
 def main():
     N = 100
@@ -27,31 +28,62 @@ def main():
     u[0] = a
     alpha = dt / dx
     u[-1] = a
+    U = [u]
 
-    #plt.plot(X, u)
-    #plt.show()
-    
-    # 
-    # kBu^u + v2u/2x
-    #
+    A = convection_diffusion(dx, N, v=v, k=k);
 
-    M = scpy.sparse.lil_matrix((N, N)) 
-    M.setdiag(np.ones(N), k=1)
-    M.setdiag(np.ones(N) * -2.0)
-    M.setdiag(np.ones(N), k=-1)
-    
-    # Construct the Matricies to reflexct the lax formula 
-    J = scpy.sparse.lil_matrix((N, N))
-    J.setdiag(np.zeros(N) - 1, k=-1)
-    J.setdiag(np.zeros(N) + 1, k=1)
-    J[0,:] = np.zeros(N)
-    J[-1,:] = np.zeros(N)
-    J[0, 0] = 1
-    J[-1, -1] = 1
+    intgr = scint.ode(rhs)
+    intgr.set_integrator('vode', method='bdf')  
+    intgr.set_f_params(A)
+    intgr.set_initial_value(u, 0.0)
+
+    # Start graphics
+    #plt.ion()
+    #plt.clf()
+     
+    #ph, = plt.plot(X,U[0],'ko-')
+    #plt.title('Convection-Diffusion PDE Time Evolution')
+    #plt.xlabel('Space')
+    #plt.ylabel('Function value u(x,t)')
+
+    # Outer integration loop over times
+    while intgr.t < 10:
+        U.append(intgr.integrate(intgr.t+dt))
+        #ph.set_ydata(U[-1])
+        #plt.show()
+
+    animate1Dframes(X, U)
+
     return 0
 
 def rhs(t, y, A):
     return A * y
+
+def wiki_upwinded_derivative(dx, N, v):
+    A = scpy.sparse.lil_matrix((N, N))
+
+    """ Upwind formula from the wiki """
+    if v < 0:
+        A.setdiag(np.zeros(N), k=-1)
+        A.setdiag(np.ones(N) * -1.0)
+        A.setdiag(np.ones(N), k=1)
+    elif v == 0:
+        A = A * 0
+    elif v > 0:
+        A.setdiag(np.ones(N) * -1.0, k=-1)
+        A.setdiag(np.ones(N))
+        A.setdiag(np.zeros(N), k=1)
+
+    A = A * v / dx
+ 
+    A[0,:] = np.zeros(N)
+    A[-1,:] = np.zeros(N) 
+    A[0, 0] = 1
+    A[-1, -1] = 1
+
+    print "A: ", A.todense()
+
+    return A
 
 def convection_diffusion(dx, N, v=1.0, k=1.0, firstDFormula=wiki_upwinded_derivative):
     """ Convection diffusion formula
@@ -66,32 +98,15 @@ def convection_diffusion(dx, N, v=1.0, k=1.0, firstDFormula=wiki_upwinded_deriva
     B = scpy.sparse.lil_matrix((N, N)) 
     B.setdiag(np.ones(N), k=1)
     B.setdiag(np.ones(N) * -2.0)
-    B.setdiag(np.ones(N), k=-1) 
-
-    pass
-
-def wiki_upwinded_derivative(dx, N, v):
-    A = scpy.sparse.lil_matrix((N, N))
-
-    """ Upwind formula from the wiki """
-    if v < 0:
-        A.setdiag(np.zeros(N), k=-1)
-        A.setdiag(np.ones(N) * -1.0)
-        A.setdiag(np.ones(N), k=1)
-    elif v = 0:
-        A = A * 0
-    elif v > 0:
-        A.setdiag(np.onos(N) * -1.0, k=-1)
-        A.setdiag(np.ones(N))
-        A.setdiag(np.zeros(N), k=1)
- 
-    A[0,:] = np.zeros(N)
-    A[-1,:] = np.zeros(N)
-    A[0, 0] = 1
-    A[-1, -1] = 1
-
-    return A * v / dx
-
+    B.setdiag(np.ones(N), k=-1)
+    B = B * k / dx**2
+    print "B: ", B.todense()
+    B = B - firstDFormula(dx, N, v)
+    B[0,:] = np.zeros(N)
+    B[-1,:] = np.zeros(N)
+    B[0, 0] = 1
+    B[-1, -1] = 1
+    return B 
 
 def integral(x, u):
     """ Calculate the area underneath a curve.
