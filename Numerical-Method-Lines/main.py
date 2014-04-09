@@ -9,8 +9,8 @@ import scipy.integrate as scint
 
 def main():
     N = 100
-    dt = 0.001
-    t_max = 4.0
+    dt = 0.1
+    t_max = 15
     time_steps = t_max / dt
     v = 5.0
     k = 1.0
@@ -31,28 +31,19 @@ def main():
     U = [u]
 
     A = convection_diffusion(dx, N, v=v, k=k);
-
+    
+    # set up the integrtn env. 
     intgr = scint.ode(rhs)
     intgr.set_integrator('vode', method='bdf')  
     intgr.set_f_params(A)
     intgr.set_initial_value(u, 0.0)
-
-    # Start graphics
-    #plt.ion()
-    #plt.clf()
-     
-    #ph, = plt.plot(X,U[0],'ko-')
-    #plt.title('Convection-Diffusion PDE Time Evolution')
-    #plt.xlabel('Space')
-    #plt.ylabel('Function value u(x,t)')
-
     # Outer integration loop over times
     while intgr.t < 10:
         U.append(intgr.integrate(intgr.t+dt))
-        #ph.set_ydata(U[-1])
-        #plt.show()
 
     animate1Dframes(X, U)
+    #plt.plot(X, U[0])
+    #plt.show()
 
     return 0
 
@@ -83,7 +74,7 @@ def wiki_upwinded_derivative(dx, N, v):
 
     print "A: ", A.todense()
 
-    return A
+    return A.tolil()
 
 def convection_diffusion(dx, N, v=1.0, k=1.0, firstDFormula=wiki_upwinded_derivative):
     """ Convection diffusion formula
@@ -100,47 +91,13 @@ def convection_diffusion(dx, N, v=1.0, k=1.0, firstDFormula=wiki_upwinded_deriva
     B.setdiag(np.ones(N) * -2.0)
     B.setdiag(np.ones(N), k=-1)
     B = B * k / dx**2
-    print "B: ", B.todense()
+    #print "B: ", B.todense()
     B = B - firstDFormula(dx, N, v)
     B[0,:] = np.zeros(N)
     B[-1,:] = np.zeros(N)
     B[0, 0] = 1
     B[-1, -1] = 1
-    return B 
-
-def integral(x, u):
-    """ Calculate the area underneath a curve.
-        :param x: the x values of the curve. 
-        :param u: the y values of the curve.
-    """
-    area = 0
-    h = x[1] - x[0]
-    for i in range(1, len(u)):
-        p0 = np.array([x[i - 1], 0])
-        p1 = np.array([x[i - 1], u[i - 1]])
-        p2 = np.array([x[i], u[i]])
-        p3 = np.array([x[i], 0])
-        a = np.linalg.norm(p0 - p1)
-        b = np.linalg.norm(p2 - p3)
-        area = area + 0.5 * (a + b) * h
-    
-    return area
-
-def simulate(u_0, A, boundries = 0.0, n=2000):
-    """ Run the simulation for a defined number of steps 
-        :param 
-        Returns the u^{n}
-    """
-    U = [] 
-    u_n = u_0
-    for i in range(0, int(n)):
-        U.append(u_n)
-        u_np1 = scpy.sparse.linalg.spsolve(A,u_n) 
-        u_np1[0] = boundries
-        u_np1[-1] = boundries
-        u_n = u_np1
-        
-    return U
+    return B.tolil()
 
 def animate1Dframes(x, data):
     """ Animates a 2D array of data using pyplot. 
@@ -151,7 +108,7 @@ def animate1Dframes(x, data):
     """
     plt.ion() # Set the plot to animated.    
     ax1 = plt.axes()
-    line, = plt.plot(x, data[0], '-ok')
+    line, = plt.plot(x, data[0], '-*k')
 
     for u in data:
         line.set_ydata(u)
