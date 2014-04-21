@@ -20,7 +20,7 @@ def main():
     plt.plot(x, u[-1], "-sk")
     plt.savefig("partial1D.png")
     plt.close()
-    #animate1Dframes(x, u)
+    animate1Dframes(x, u)
 
     u2D = np.zeros((N, N))
     u2D[:,-1]= b

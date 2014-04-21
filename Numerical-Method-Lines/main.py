@@ -27,10 +27,11 @@ def main():
     u[x_sw0:x_swk] = b
     u[0] = a
     alpha = dt / dx
-    u[-1] = a
+    u[-1] = b
     U = [u]
 
     A = convection_diffusion(dx, N, v=v, k=k);
+    #print A.todense()
     
     # set up the integrtn env. 
     intgr = scint.ode(rhs)
@@ -38,7 +39,7 @@ def main():
     intgr.set_f_params(A)
     intgr.set_initial_value(u, 0.0)
     # Outer integration loop over times
-    while intgr.t < 10:
+    while intgr.t < t_max:
         U.append(intgr.integrate(intgr.t+dt))
 
     animate1Dframes(X, U)
@@ -72,7 +73,7 @@ def wiki_upwinded_derivative(dx, N, v):
     A[0, 0] = 1
     A[-1, -1] = 1
 
-    print "A: ", A.todense()
+    #print "A: ", A.todense()
 
     return A.tolil()
 
@@ -92,7 +93,7 @@ def convection_diffusion(dx, N, v=1.0, k=1.0, firstDFormula=wiki_upwinded_deriva
     B.setdiag(np.ones(N), k=-1)
     B = B * k / dx**2
     #print "B: ", B.todense()
-    B = B - firstDFormula(dx, N, v)
+    B = B #- firstDFormula(dx, N, v)
     B[0,:] = np.zeros(N)
     B[-1,:] = np.zeros(N)
     B[0, 0] = 1
@@ -113,7 +114,7 @@ def animate1Dframes(x, data):
     for u in data:
         line.set_ydata(u)
         plt.draw()
-        #tm.sleep(0.25)
+        tm.sleep(0.25)
 
 
 if __name__ == "__main__":

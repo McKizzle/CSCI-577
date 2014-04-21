@@ -33,7 +33,7 @@ def main():
     
     U = simulate(u, S, n=time_steps)
     
-    #animate1Dframes(X, U)
+    animate1Dframes(X, U)
     # Plot the final curve
     plt.plot(X, U[-1], '-ok')
     plt.title("Implicit Method")
@@ -79,7 +79,7 @@ def main():
 
 
     # Plot the final curve
-    #animate1Dframes(X, U)
+    animate1Dframes(X, U)
     plt.plot(X, U[-1], '-ok')
     plt.title("Crank Nicolson Method")
     plt.ylabel("x")

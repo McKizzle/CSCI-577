@@ -53,8 +53,9 @@ def main():
     A[-1, -1] = 1
     A = scpy.sparse.csr_matrix(scpy.linalg.inv(A.todense()))
     U = simulate(u, A, n=time_steps)
-    #animate1Dframes(X, U)
-
+    animate1Dframes(X, U)
+    
+    return 0
     
     plt.title("Lax Method: dt = %0.2f, dx = %0.2f, and v = %0.2f" % (dt, dx, v))
     plt_0,  = plt.plot(X, U[0], "-ks")
