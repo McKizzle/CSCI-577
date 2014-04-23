@@ -1,0 +1,95 @@
+\documentclass{article}[12pt]%You can define the type of paper here.
+%%Useful packages that I commonly use.
+\usepackage[numbers]{natbib}%Bibliography package (help at http://merkel.zoneo.net/Latex/natbib.php).
+\usepackage{url}%Package to highlight url.
+\usepackage{times}%Sets font to be times.
+\usepackage{alltt}%Allows the use of verbatim (good for printing out code).
+\usepackage{graphicx}%Used to import images.
+\usepackage{amsmath, amssymb, amscd, gensymb}%Contains the AMS expanded math symbols library.
+%%For those who want smaller margins, you can use this:
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+
+\begin{document}
+
+\begin{flushright}
+Weak Forms
+
+Clinton McKay 
+
+CSCI 577
+\end{flushright}
+
+\begin{enumerate}
+    \item Strong form:
+    \begin{align*} 
+        \frac{d}{dx}k\frac{du}{dx} + 2x = 0~~\mathrm{on}~\mathrm{1} ~<~ x ~ < ~ \mathrm{3}\\
+        \left( k\frac{du}{dx}\right)_{x=\mathrm{1}} = .1\\
+        \frac{}{}u(\mathrm{3}) = \mathrm{1}.\\
+    \end{align*}
+    \begin{enumerate}
+        \item Substitute the strong form into the residual. 
+        \begin{align*}
+          \int^3_1\left[\frac{d}{dx}k\frac{du}{dx} + 2x\right]wdx = 0  
+        \end{align*}
+        \item Integrate by parts. 
+        \begin{align*}
+            -\int^3_1\left[k\frac{du}{dx}\frac{dw}{dx} + 2wx\right]dx + k\frac{du}{dx}w \Big|^3_1
+        \end{align*}
+        \item Determine boundaries.
+        \begin{align*}
+            \widetilde{u}(3) = 3\\
+            w(3) = 0
+        \end{align*}
+    \end{enumerate}
+    
+    \item Strong form:
+    \begin{align*}
+        \kappa \frac{d^2 u}{dx^2} - \lambda u + 2x^2 = 0~~\mathrm{on}~\mathrm{0} ~<~ x ~ < ~ \mathrm{1}\\
+        \frac{}{}u(0) = 1\\
+        \frac{}{}u(1) = -2
+    \end{align*}
+
+    Where $\lambda$ and $\kappa$ are constants.
+
+    \begin{enumerate}
+        \item Substitute the strong form into the residual. 
+        \begin{align*}
+            \int^1_0\left[\kappa \frac{d^2 u}{dx^2} - \lambda u + 2x^2\right]wdx = 0  
+        \end{align*}
+        \item Integrate by parts. 
+        \begin{align*}
+            -\int^1_0\kappa\frac{du}{dx}\frac{dw}{dx} + \kappa\frac{du}{dx}w\Big|^1_0
+        \end{align*}
+        \item Determine boundaries.
+        \begin{align*}
+            w(0) = w(1) = 0
+        \end{align*}
+    \end{enumerate}
+
+
+    \item Strong form:
+    \begin{align*}
+         x \frac{d^2 u}{dx^2} + \frac{du}{dx}  - x = 0~~\mathrm{on}~\mathrm{0} ~<~ x ~ < ~ \mathrm{1}\\
+        \frac{}{}u(0) = 0\\
+        \frac{}{}u(1) = 0
+    \end{align*}
+
+    Where $\lambda$ and $\kappa$ are constants.
+
+    \begin{enumerate}
+        \item Substitute the strong form into the residual. 
+        \begin{align*}
+            \int^1_0\left[x \frac{d^2 u}{dx^2} + \frac{du}{dx}  - x\right]wdx = 0
+        \end{align*}
+        \item Integrate by parts. 
+        \begin{align*}
+            -\int^1_0x\frac{du}{dx}\frac{dw}{dx} + x\frac{du}{dx}w\Big|^1_0
+        \end{align*}
+        \item Determine boundaries.
+        \begin{align*}
+            w(0) = w(1) = 0
+        \end{align*}
+    \end{enumerate}
+\end{enumerate}
+
+\end{document}

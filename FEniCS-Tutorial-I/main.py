@@ -49,65 +49,67 @@ def test1():
     return 0
 
 def test2():
-    T = 10.0 # tension
-    A = 1.0 # pressure amplitude
-    R = 0.3 # radius of domain
-    theta = 0.2
-    x0 = 0.6 * R * cos(theta)
-    y0 = 0.6 * R * sin(theta)
-    sigma = 50.0
+    #T = 10.0 # tension
+    #A = 1.0 # pressure amplitude
+    #R = 0.3 # radius of domain
+    #theta = 0.2
+    #x0 = 0.6 * R * cos(theta)
+    #y0 = 0.6 * R * sin(theta)
+    #sigma = 50.0
+    #n = 40 
+    #mesh = UnitCircle(n)
+    #V = FunctionSpace(mesh, 'Lagrange', 1)
+
+    #bc = DirichletBC(V, Constant(0.0), boundary)
+    #
+    ## Define variational Problem
+    #w = TrialFunction(V)
+    #v = TestFunction(V)
+    #a = inner(nabla_grad(w), nabla_grad(v)) * dx
+    #f = Expression('4*exp(-0.5*(pow((R*x[0] - x0)/sigma, 2)) '
+    #               '      -0.5*(pow((R*x[1] - y0)/sigma, 2)))',
+    #               R=R, x0=x0, y0=y0, sigma=sigma)
+    #L = f * v * dx
+
+    ## Compute Solution
+    #w = Function(V)
+    #problem = LinearVariationalProblem(a, L, w, bc)
+    #solver = LinearVariationalSolver(problem)
+    #solver.parameters['linear_solver'] = 'cg'
+    #solver.parameters['preconditioner'] = 'ilu'
+    #solver.solve()
+
+    ## Plot scaled solution, mesh and pressure
+    ##plot(mesh, title='Mesh over scaled domain')
+    ##plot(w, title='Scaled deflection')
+    ##f = interpolate(f, V)
+    ##plot(f, title='Scaled pressure')
+
+    ## Find maximum real deflection
+    #max_w = w.vector().array().max()
+    #max_D = A*max_w/(8*pi*sigma*T)
+    #print 'Maximum real deflection is', max_D
+
+    ## Verification for "flat" pressure (large sigma)
+    #if sigma >= 50:
+    #    w_e = Expression("1 - x[0]*x[0] - x[1]*x[1]")
+    #    w_e = interpolate(w_e, V)
+    #    dev = numpy.abs(w_e.vector().array() - w.vector().array()).max()
+    #    print 'sigma=%g: max deviation=%e' % (sigma, dev)
+
+    ## Should be at the end
+    ##interactive()
+
     n = 40 
     mesh = UnitCircle(n)
-    V = FunctionSpace(mesh, 'Lagrange', 1)
-
-    bc = DirichletBC(V, Constant(0.0), boundary)
-    
-    # Define variational Problem
-    w = TrialFunction(V)
-    v = TestFunction(V)
-    a = inner(nabla_grad(w), nabla_grad(v)) * dx
-    f = Expression('4*exp(-0.5*(pow((R*x[0] - x0)/sigma, 2)) '
-                   '      -0.5*(pow((R*x[1] - y0)/sigma, 2)))',
-                   R=R, x0=x0, y0=y0, sigma=sigma)
-    L = f * v * dx
-
-    # Compute Solution
-    w = Function(V)
-    problem = LinearVariationalProblem(a, L, w, bc)
-    solver = LinearVariationalSolver(problem)
-    solver.parameters['linear_solver'] = 'cg'
-    solver.parameters['preconditioner'] = 'ilu'
-    solver.solve()
-
-    # Plot scaled solution, mesh and pressure
-    #plot(mesh, title='Mesh over scaled domain')
-    #plot(w, title='Scaled deflection')
-    #f = interpolate(f, V)
-    #plot(f, title='Scaled pressure')
-
-    # Find maximum real deflection
-    max_w = w.vector().array().max()
-    max_D = A*max_w/(8*pi*sigma*T)
-    print 'Maximum real deflection is', max_D
-
-    # Verification for "flat" pressure (large sigma)
-    if sigma >= 50:
-        w_e = Expression("1 - x[0]*x[0] - x[1]*x[1]")
-        w_e = interpolate(w_e, V)
-        dev = numpy.abs(w_e.vector().array() - w.vector().array()).max()
-        print 'sigma=%g: max deviation=%e' % (sigma, dev)
-
-    # Should be at the end
-    #interactive()
-
     V_g = VectorFunctionSpace(mesh, 'Lagrange', 1)
+    u = Function(V_g)
     w = TrialFunction(V_g)
     v = TestFunction(V_g)
-    u = 
 
     a = inner(w, v) * dx
-    L = inner(grad(v), v) * dx
-    grad_v = Function(V_g)
+    L = inner(grad(u), v) * dx
+    grad_u = Function(V_g)
     solve(a == L, grad_u)
 
     plot(grad_u, title='grad(u)')
