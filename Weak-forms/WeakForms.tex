@@ -37,7 +37,7 @@ CSCI 577
         \end{align*}
         \item Determine boundaries.
         \begin{align*}
-            \widetilde{u}(3) = 3\\
+            \widetilde{u}(3) = 1\\
             w(3) = 0
         \end{align*}
     \end{enumerate}
@@ -74,16 +74,16 @@ CSCI 577
         \frac{}{}u(1) = 0
     \end{align*}
 
-    Where $\lambda$ and $\kappa$ are constants.
-
     \begin{enumerate}
         \item Substitute the strong form into the residual. 
         \begin{align*}
-            \int^1_0\left[x \frac{d^2 u}{dx^2} + \frac{du}{dx}  - x\right]wdx = 0
+            \int^1_0\left[x \frac{d^2 u}{dx^2} + \frac{du}{dx}  - x\right]wdx = 0\\
         \end{align*}
         \item Integrate by parts. 
         \begin{align*}
-            -\int^1_0x\frac{du}{dx}\frac{dw}{dx} + x\frac{du}{dx}w\Big|^1_0
+            \int^1_0wx\frac{d^2 u}{dx^2}dx + \int^1_0w\frac{du}{dx}dx  - \int^1_0xwdx = 0\\
+            -\int^1_0\frac{dw}{dx}\frac{du}{dx} + w\frac{du}{dx}\Big|^1_0 - \int^1_0\frac{dw}{dx}udx + wu\Big|^1_0 - \int^1_0xwdx \\
+            -\int^1_0\frac{dw}{dx}\frac{du}{dx} - \int^1_0\frac{dw}{dx}udx  - \int^1_0xwdx + w\frac{du}{dx}\Big|^1_0 + wu\Big|^1_0\\
         \end{align*}
         \item Determine boundaries.
         \begin{align*}
