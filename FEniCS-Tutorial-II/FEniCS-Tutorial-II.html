@@ -1678,7 +1678,7 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="time-dependent-problems">Time-Dependent Problems</h1>
-<p>Follows the tutorial provided by FEniCS. The url is http://fenicsproject.org/documentation/tutorial/timedep.html</p>
+<p>Follows the tutorial provided by FEniCS. The url is <a href="http://fenicsproject.org/documentation/tutorial/timedep.html">http://fenicsproject.org/documentation/tutorial/timedep.html</a></p>
 </div>
 </div>
 </div>
@@ -1699,43 +1699,51 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="implementation">Implementation</h2>
 <h3 id="descritization-of-diffusion-problem">Descritization of Diffusion Problem</h3>
-<p>Descritize the diffusion PDE.</p>
-
-<p>Now lets set <span class="math">\(u^0 = I\)</span> where <span class="math">\(I\)</span> is the initial conditions of the system.</p>
+<p>Descritize the diffusion PDE. </p>
+<p>\begin{align}
+   \frac{\partial}{\partial t} &amp;= \nabla^2 u^k + f^k \\
+   \frac{u^k - u^{k-1}}{\Delta t} &amp;=  \nabla^2 u^k + f^k\\
+\end{align}</p>
+<p>Now lets set $u^0 = I$ where $I$ is the initial conditions of the system. </p>
 <h3 id="conversion-to-weak-form">Conversion to Weak Form</h3>
-<p>For consistancy with the class notes recall that <span class="math">\(v = w\)</span> and <span class="math">\(u = \nabla^2 u^k + f^k\)</span></p>
-
+<p>For consistancy with the class notes recall that $v = w$ and $u = \nabla^2 u^k + f^k$</p>
+<p>\begin{align}
+    a_0(u, v) &amp;= \int_\Omega uv dx,\\
+    L_0(v)    &amp;= \int_\Omega Iv dx, \\
+    a(u, v)   &amp;= \int_\Omega (uv + \Delta t\nabla u * \nabla v) dx, \\
+    L(v)      &amp;= \int_\Omega (u^{k-1} + \Delta t f^k) v dx\\
+\end{align}</p>
 <h3 id="variables">Variables</h3>
 <ul>
-<li><span class="math">\(I\)</span> is the initital conditions</li>
-<li><span class="math">\(f\)</span> is the source function</li>
-<li><span class="math">\(u^0 = I\)</span>, the superscript <span class="math">\(k=0\)</span> is the timestep.</li>
-<li><span class="math">\(\Omega\)</span> is domain of integration (proper word usage?)</li>
+<li>$I$ is the initital conditions</li>
+<li>$f$ is the source function</li>
+<li>$u^0 = I$, the superscript $k=0$ is the timestep. </li>
+<li>$\Omega$ is domain of integration (proper word usage?)</li>
 </ul>
 <h3 id="steps-to-follow">Steps to Follow</h3>
 <ul>
 <li>define the Dirichlet boundary condition</li>
-<li>if <span class="math">\(u_1\)</span> is to be computed by projecting <span class="math">\(I\)</span>:
-<ul>
-<li>define <span class="math">\(a_0\)</span> and <span class="math">\(L_0\)</span></li>
-<li>assemble matrix <span class="math">\(M\)</span> from <span class="math">\(a_0\)</span> and vector <span class="math">\(b\)</span> from <span class="math">\(L_0\)</span></li>
-<li>solve <span class="math">\(MU = b\)</span> and store <span class="math">\(U\)</span> in <span class="math">\(u_1\)</span></li>
-</ul></li>
-<li>else: (interpolation)
-<ul>
-<li>let <span class="math">\(u_1\)</span> interpolate <span class="math">\(I\)</span></li>
-</ul></li>
-<li>define <span class="math">\(a\)</span> and <span class="math">\(L\)</span></li>
-<li>assemble matrix <span class="math">\(A\)</span> form <span class="math">\(a\)</span></li>
-<li>set some stopping time <span class="math">\(T\)</span></li>
-<li><span class="math">\(t = \Delta t\)</span></li>
-<li>while <span class="math">\(t \leq T\)</span>
-<ul>
-<li>assamble vector <span class="math">\(b\)</span> from <span class="math">\(L\)</span></li>
+<li>if $u_1$ is to be computed by projecting $I$:<ul>
+<li>define $a_0$ and $L_0$</li>
+<li>assemble matrix $M$ from $a_0$ and vector $b$ from $L_0$</li>
+<li>solve $MU = b$ and store $U$ in $u_1$</li>
+</ul>
+</li>
+<li>else: (interpolation)<ul>
+<li>let $u_1$ interpolate $I$</li>
+</ul>
+</li>
+<li>define $a$ and $L$</li>
+<li>assemble matrix $A$ form $a$</li>
+<li>set some stopping time $T$</li>
+<li>$t = \Delta t$</li>
+<li>while $t \leq T$<ul>
+<li>assamble vector $b$ from $L$</li>
 <li>apply essential boundary conditions</li>
-<li><span class="math">\(t \leftarrow t + \Delta t\)</span></li>
-<li><span class="math">\(u_1 \leftarrow u\)</span> (be redy for the next step</li>
-</ul></li>
+<li>$t \leftarrow t + \Delta t$</li>
+<li>$u_1 \leftarrow u$ (be redy for the next step</li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -2002,15 +2010,30 @@ Max error, t=1.80: 0.0000000
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="avoiding-assembly-linear-system">Avoiding Assembly (Linear System)</h2>
-<p>For extra information refer to the <a href="http://fenicsproject.org/documentation/tutorial/fundamentals.html#tut-poisson1-linalg"> A Linear Algebra Formulation </a></p>
-<p>tutorial.</p>
+<h2 id="avoiding-assembly-linear-system-">Avoiding Assembly (Linear System)</h2>
+<p>For extra information refer to the 
+<a href="http://fenicsproject.org/documentation/tutorial/fundamentals.html#tut-poisson1-linalg"> 
+  A Linear Algebra Formulation 
+</a></p>
+<p>tutorial. </p>
 <h3 id="component-breakdown">Component Breakdown</h3>
-<p>We know tha that <span class="math">\(u^{k-1}=\sum_{j=1}^NU^{k-1}_j\phi_j\)</span> and that <span class="math">\(f^{k}=\sum_{j=1}^NF^{k}_j\phi_j\)</span>. Now lets insert these expressions into <span class="math">\(L(v)\)</span> and using <span class="math">\(v=\hat\phi_i\)</span> we get...</p>
-
-<p>Lets introduce the masss matrix <span class="math">\(M_{ij} = \int_\Omega \hat\phi_i\phi_j \, \mathrm{d}x\)</span> in order to rewrite the last expression.</p>
-
-<p>Lets tie this formula to the program. <code>u_1</code> is essentially <span class="math">\(U^{k-1}\)</span> and that <span class="math">\(F^k\)</span> is the interpolated function <span class="math">\(f\)</span> (at each time level if <span class="math">\(f\)</span> varies in time). The end result is that the right hand side is simply</p>
+<p>We know tha that $u^{k-1}=\sum_{j=1}^NU^{k-1}_j\phi_j$ and that $f^{k}=\sum_{j=1}^NF^{k}_j\phi_j$. Now lets insert these expressions into $L(v)$ and using $v=\hat\phi_i$ we get...</p>
+<p>\begin{align}
+  \int_\Omega \left(u^{k-1} + {\Delta t}f^k\right)v \, \mathrm{d}x &amp;=
+\int_\Omega \left(\sum_{j=1}^N U^{k-1}_j\phi_j + {\Delta t}\sum_{j=1}^N F^{k}_j\phi_j\right)\hat\phi_i \, \mathrm{d}x\\
+  &amp;=\sum_{j=1}^N\left(\int_\Omega \hat\phi_i\phi_j \, \mathrm{d}x\right)U^{k-1}_j
+ + {\Delta t}\sum_{j=1}^N\left(\int_\Omega \hat\phi_i\phi_j \, \mathrm{d}x\right)F^{k}_j\thinspace
+\end{align}</p>
+<p>Lets introduce the masss matrix $M_{ij} = \int_\Omega \hat\phi_i\phi_j \,
+\mathrm{d}x$ in order to rewrite the last expression. </p>
+<p>\begin{align}
+  &amp;=\sum_{j=1}^NM_{ij}U^{k-1}_j + {\Delta t} \sum_{j=1}^NM_{ij}F^{k}_j\\
+  &amp;= MU^{k-1} + \Delta t MF^k
+\end{align}</p>
+<p>Lets tie this formula to the program. <code>u_1</code> is essentially $U^{k-1}$ and that $F^k$ is the interpolated function $f$ (at each time level if $f$ varies in time). The end result is that the right hand side is simply </p>
+<p>\begin{align}
+  b &amp;= MU^{k-1} + \Delta t MF^k
+\end{align}</p>
 </div>
 </div>
 </div>
