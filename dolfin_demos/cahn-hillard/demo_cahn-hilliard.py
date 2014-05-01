@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """This demo illustrates how to use of DOLFIN for solving the Cahn-Hilliard
 equation, which is a time-dependent nonlinear PDE """
 

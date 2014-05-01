@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """This demo program solves Poisson's equation
 
     - div grad u(x, y) = f(x, y)
